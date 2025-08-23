@@ -1,0 +1,20 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Environments
+.venv/
+.env
+
+# OS
+.DS_Store
+
+# Playwright artifacts
+playwright-report/
+test-results/
+
+# data
+/out
+login
+.claude
