@@ -286,7 +286,27 @@ def parse_html_to_data(html: str, url: str = None, override_servings: int | None
         for allergen in allergenen:
             nutri_lines.append(allergen)
 
+    # Extract rating information
+    rating_value = ""
+    rating_count = ""
+    
+    # Look for rating value in div with id="ratingvalue"
+    rating_div = soup.find("div", {"id": "ratingvalue"})
+    if rating_div:
+        rating_value = text(rating_div).strip()
+    
+    # Look for rating count in small with id="ratingcount"
+    rating_count_elem = soup.find("small", {"id": "ratingcount"})
+    if rating_count_elem:
+        rating_text = text(rating_count_elem).strip()
+        # Extract number from text like "Gemiddelde van 52 reviews"
+        match = re.search(r'(\d+)\s+reviews?', rating_text)
+        if match:
+            rating_count = match.group(1)
+
     notes_lines = []
+    if rating_value and rating_count:
+        notes_lines.append(f"Beoordeling: {rating_value} uit {rating_count} reviews")
     if tags:
         notes_lines.append("Tags: " + ", ".join(tags))
     if tip_text:
