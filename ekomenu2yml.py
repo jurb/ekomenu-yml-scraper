@@ -153,19 +153,8 @@ def parse_html_to_data(html: str, url: str = None, override_servings: int | None
         elif re.search(r"\b\d+\s*g\s*groente\b", c.lower()):
             veg = c
 
-    servings_raw = ""
-    for sc in soup.select(".chip"):
-        cls = " ".join(sc.get("class", []))
-        if ("bg-e-dark-green" in cls and "text-white" in cls) and ("persons-" in (sc.get("id") or "")):
-            servings_raw = text(sc)
-            break
-    if not servings_raw:
-        pers = [text(sc) for sc in soup.select(".chip") if "pers." in text(sc)]
-        servings_raw = pers[0] if pers else ""
-    servings_n = None
-    m = re.search(r"(\d+)\s*pers?\.", servings_raw.lower())
-    if m:
-        servings_n = int(m.group(1))
+    # Default to 2 servings as ingredients are listed for 2 people
+    servings_n = 2
     if override_servings is not None:
         servings_n = override_servings
 
