@@ -391,15 +391,37 @@ def ekomenu_login(page, email, password):
                 "button#login-button", "button:has-text('Login')"]:
         if page.locator(sel).count():
             try:
-                page.locator(sel).click(timeout=30000)
+                page.locator(sel).click(timeout=10000)
             except Exception:
                 dismiss_cookiebot(page)
-                page.locator(sel).click(timeout=30000)
+                page.locator(sel).click(timeout=10000)
             break
 
-    page.wait_for_load_state("networkidle")
+    # Wait for navigation after login with timeout
+    try:
+        page.wait_for_load_state("networkidle", timeout=15000)
+    except PWTimeout:
+        # If networkidle times out, just check if login succeeded
+        pass
+    
     if "login" in page.url:
         raise RuntimeError("Login failed; still on login page")
+
+def is_logged_in(page):
+    """Check if user is currently logged in to Ekomenu."""
+    try:
+        # Try to access a recipe page directly to test authentication
+        page.goto("https://www.ekomenu.nl/user?date=2025-09-08&recipe=13712", wait_until="domcontentloaded")
+        # Check for elements that indicate we're on a recipe page vs login page
+        try:
+            # If we can find the recipe title, we're logged in and can access recipes
+            page.wait_for_selector("app-recipe h1[itemprop='name'], h1[itemprop='name']", timeout=5000)
+            return True
+        except PWTimeout:
+            # If no recipe title found, check if we're on login page
+            return "login" not in page.url and page.locator("input[type='email']").count() == 0
+    except Exception:
+        return False
 
 def open_recipe(page, url):
     page.goto(url, wait_until="domcontentloaded")
@@ -450,12 +472,22 @@ def main():
         context = browser.new_context(**ctx_kwargs)
         page = context.new_page()
 
-        if not args.use_state:
+        # Check if we need to login
+        need_login = True
+        if args.use_state:
+            # Test if saved state is still valid
+            dismiss_cookiebot(page)
+            if is_logged_in(page):
+                need_login = False
+                print("[info] Using saved session state")
+            else:
+                print("[info] Saved session expired, performing fresh login")
+        
+        if need_login:
             ekomenu_login(page, email, password)
             if args.save_state:
                 context.storage_state(path=args.save_state)
-        else:
-            dismiss_cookiebot(page)
+                print(f"[info] Session state saved to {args.save_state}")
 
         recipes = []
         for url in args.urls:
