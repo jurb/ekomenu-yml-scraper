@@ -1,6 +1,6 @@
 # ekomenu-yml-scraper
 
-Convert **Ekomenu** recipes into clean YAML from logged-in recipe URLs on www.ekomenu.nl (and most likely on www.ekomenu.be). Those files can be imported into Paprika, a ios and macos recipe app.
+Convert **Ekomenu** recipes into clean YAML from logged-in recipe URLs on www.ekomenu.nl (and most likely on www.ekomenu.be). The YAML files can be imported into [Paprika](https://www.paprikaapp.com), an iOS and macOS recipe app.
 
 ## Features
 - **No venvs required**: Scripts use `uv` in the shebang for dependency isolation.
