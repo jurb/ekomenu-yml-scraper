@@ -18,3 +18,17 @@ test-results/
 /out
 login
 .claude
+
+# Generated text files
+all_recipe_ids.txt
+all_recipe_ids.urls.txt
+all_recipe_ids_full.txt
+all_recipe_ids_full.urls.txt
+recipe_ids.txt
+recipe_ids.urls.txt
+sample_urls.txt
+sample_urls_fixed.txt
+
+# Test YAML files
+test_combined.yml
+test_sorted.yml
