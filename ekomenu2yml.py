@@ -501,10 +501,25 @@ def main():
 
         if recipes:
             if len(recipes) == 1:
-                # Single recipe - use original naming
+                # Single recipe - use original naming with rating prefix
                 rid = recipe_id_from_url(args.urls[0])
                 slug = slugify(recipes[0].get("name") or rid)
-                yml_path = outdir / f"{rid}_{slug}.yml"
+                
+                # Extract rating for filename prefix
+                rating_prefix = "0.0"  # Default rating if none found
+                if recipes[0].get("notes"):
+                    # Look for rating in notes
+                    import re
+                    rating_match = re.search(r'Beoordeling: ([\d.,]+)', recipes[0]["notes"])
+                    if rating_match:
+                        rating_str = rating_match.group(1).replace(',', '.')
+                        try:
+                            rating_float = float(rating_str)
+                            rating_prefix = f"{rating_float:.1f}"
+                        except ValueError:
+                            rating_prefix = "0.0"
+                
+                yml_path = outdir / f"{rating_prefix}_{rid}_{slug}.yml"
                 yml_path.write_text(render_yaml(recipes[0]), encoding="utf-8")
             else:
                 # Multiple recipes - use combined naming
